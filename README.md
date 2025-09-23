@@ -18,13 +18,6 @@ This repository contains comprehensive lecture notes and computational examples 
   - PUMA 560 robot analysis
   - Mathematical formulations and appendices
 
-### LaTeX Source Files
-All LaTeX source files are organized in the [`latex_source/`](latex_source/) directory:
-- **Main document**: `robot_kinematics.tex`
-- **Bibliography**: `references.bib` (IEEE format)
-- **Section files**: Individual `.tex` files for each chapter
-- **Images**: `imgs/` folder containing all figures and diagrams
-
 ## 💻 Code Examples
 
 The [`source_codes/`](source_codes/) directory contains implementations in multiple programming languages and platforms:
@@ -44,6 +37,14 @@ The [`source_codes/`](source_codes/) directory contains implementations in multi
 
 ### MATLAB Scripts
 - **`PUMA560Kinematics_FollowNotes_Answer.m`** - MATLAB implementation of PUMA 560 kinematics following the lecture notes with complete solutions
+
+
+### LaTeX Source Files
+All LaTeX source files are organized in the [`latex_source/`](latex_source/) directory:
+- **Main document**: `robot_kinematics.tex`
+- **Bibliography**: `references.bib` (IEEE format)
+- **Section files**: Individual `.tex` files for each chapter
+- **Images**: `imgs/` folder containing all figures and diagrams
 
 ## 🚀 Getting Started
 
@@ -102,37 +103,6 @@ After studying these materials, students will be able to:
 - Implement kinematic algorithms in multiple programming environments
 - Analyze industrial robot configurations (PUMA 560)
 
-## 📝 Git Repository Guidelines
-
-### Included Files
-- ✅ Final PDF document (`robot_kinematics.pdf`)
-- ✅ LaTeX source files (`.tex`, `.bib`)
-- ✅ All code examples and implementations
-- ✅ Images and figures (`latex_source/imgs/`)
-
-### Excluded Files (DO NOT PUSH)
-- ❌ LaTeX intermediate files (`.aux`, `.toc`, `.log`, `.bbl`, `.blg`, `.out`)
-- ❌ Temporary compilation files
-- ❌ System-specific cache files (`.DS_Store`)
-
-Use `.gitignore` to automatically exclude these files:
-
-```gitignore
-# LaTeX intermediate files
-*.aux
-*.bbl
-*.blg
-*.log
-*.out
-*.toc
-*.fdb_latexmk
-*.fls
-*.synctex.gz
-
-# System files
-.DS_Store
-Thumbs.db
-```
 
 ## 📚 References
 
