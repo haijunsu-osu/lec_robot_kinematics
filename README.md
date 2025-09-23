@@ -11,7 +11,7 @@ This repository contains comprehensive lecture notes and computational examples 
 ## 📚 Contents
 
 ### Lecture Notes (PDF)
-- **[robot_kinematics.pdf](robot_kinematics.pdf)** - Complete 32-page lecture notes covering:
+- **Robot Kinematics Summary PDF** - Complete 32-page document available [here](https://github.com/haijunsu-osu/lec_robot_kinematics/blob/main/robot_kinematics.pdf)
   - Forward kinematics and coordinate transformations
   - Denavit-Hartenberg (DH) parameters
   - Inverse kinematics with analytical solutions
@@ -31,11 +31,11 @@ The [`source_codes/`](source_codes/) directory contains implementations in multi
 
 ### Jupyter Notebooks (Python)
 - **`forward_kinematics_examples.ipynb`** - Forward kinematics computations with DH parameters, transformation matrices, and coordinate frame analysis
-  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/haijunsu-osu/lec_robot_kinematics/blob/master/source_codes/forward_kinematics_examples.ipynb)
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/haijunsu-osu/lec_robot_kinematics/blob/main/source_codes/forward_kinematics_examples.ipynb)
 - **`puma_560_inverse_kinematics.ipynb`** - Comprehensive analytical inverse kinematics solution for PUMA 560 robot with all 8 possible configurations
-  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/haijunsu-osu/lec_robot_kinematics/blob/master/source_codes/puma_560_inverse_kinematics.ipynb)
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/haijunsu-osu/lec_robot_kinematics/blob/main/source_codes/puma_560_inverse_kinematics.ipynb)
 - **`robot_kinematics_examples.ipynb`** - General robotics examples covering various kinematic concepts and computational methods
-  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/haijunsu-osu/lec_robot_kinematics/blob/master/source_codes/robot_kinematics_examples.ipynb)
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/haijunsu-osu/lec_robot_kinematics/blob/main/source_codes/robot_kinematics_examples.ipynb)
 
 ### Mathematica Notebooks
 - **`Inverse Kinematics of PUMA 560 (J Craig definition) Numerical.nb`** - Numerical solution methods for PUMA 560 inverse kinematics following Craig's formulation
