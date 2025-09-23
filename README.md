@@ -2,7 +2,7 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?style=flat&logo=github)](https://github.com/haijunsu-osu/lec_robot_kinematics)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-[![PDF](https://img.shields.io/badge/PDF-Download-red?style=flat&logo=adobeacrobatreader)](robot_kinematics.pdf)
+[![PDF](https://img.shields.io/badge/PDF-Download-red?style=flat&logo=adobeacrobatreader)](https://github.com/haijunsu-osu/lec_robot_kinematics/raw/main/robot_kinematics.pdf)
 
 ## Overview
 
@@ -11,7 +11,7 @@ This repository contains comprehensive lecture notes and computational examples 
 ## 📚 Contents
 
 ### Lecture Notes (PDF)
-- [**Lecture Notes**](https://github.com/haijunsu-osu/lec_robot_kinematics/blob/main/robot_kinematics.pdf)
+- [**Lecture Notes**](https://github.com/haijunsu-osu/lec_robot_kinematics/raw/main/robot_kinematics.pdf) (opens in new tab)
   - Forward kinematics and coordinate transformations
   - Denavit-Hartenberg (DH) parameters
   - Inverse kinematics with analytical solutions
