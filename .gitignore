@@ -29,3 +29,6 @@ __pycache__/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
+
+# Private/copyrighted files
+Introduction-to-Robotics-3rd-edition (Craig).pdf
