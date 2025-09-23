@@ -1,0 +1,171 @@
+\section{Inverse Kinematics}
+Recap forward kinematics: Given a joint configuration, find the pose of some part of the robot.\\
+Inverse kinematics: Given a pose, figure out the joint configurations.
+
+Input data for the problem is of the form:
+\[ T=\left[\begin{array}{cc}
+R & t \\
+0 \; 0 \; 0 & 1
+\end{array}\right] \]
+This is a nonlinear problem, thus it's not sure if there is a (unique/multiple/infinite/outside-of-workspace/none) solution. Inverse kinematics are not explicitly discussed the Stanford lecture and there is not particular exercise on it (albeit it is included in the lecture). 
+
+\subsection{Multiplicity of Solutions}
+If there are multiple solutions (configurations), choose the closest one:
+
+{\centering 
+\includegraphics[width=13cm]{imgs/12.png}
+\\}
+
+\subsection{Analytic solutions for the inverse kinematics}
+\subsubsection{Geometric solution}
+\begin{itemize}
+	\item only when robot has 3 or less dofs
+	\item not a generic solution
+\end{itemize}
+
+{\centering 
+\includegraphics[width=15cm]{imgs/14.png}
+\\}
+
+\subsubsection{Algebraic solution}
+Solution using algebraic (and polynomial) equations.\\
+Given: Formula to find the kinematic equations of an arm easily, given link params. E.g.:
+
+{\centering 
+\includegraphics[width=6cm]{imgs/15.png}
+\\}
+
+This describes the wrist (manipulator) frame relative to the base frame.\\
+We also know what is necessary to describe such a position/orientation:
+
+{\centering 
+\includegraphics[width=4cm]{imgs/16.png}i
+\\}
+
+So just an x-y positon and an angle \(\phi\).
+By equating both, we get a set of nonlinear equations, which have to be solved for $ l_1 , l_{2} , \theta $, using magical algebra:
+
+{\centering 
+\includegraphics[width=3cm]{imgs/17.png}
+\\}
+
+\subsubsection{Example}
+
+\begin{center}
+	\includegraphics[width=8cm]{imgs/18.png}\\
+	\includegraphics[width=9cm]{imgs/19.png}
+\end{center}
+
+\subsection{PUMA 560 Inverse Kinematics}
+
+
+\subsubsection{DH Parameters}
+The PUMA 560 is a 6-DOF manipulator. Its Denavit-Hartenberg parameters are given in the following table:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+Link & $\alpha_{i}$ (deg) & $a_{i}$ (mm) & $d_i$ (mm) & $\theta_i$ (deg) \\
+\hline
+1 & 0 & 0 & 0 & $\theta_1$ \\
+\hline
+2 & -90 & 0 & 0 & $\theta_2$ \\
+\hline
+3 & 0 & 431.8 & 149.09 & $\theta_3$ \\
+\hline
+4 & -90 & 20.3 & 433.07 & $\theta_4$ \\
+\hline
+5 & 90 & 0 & 0 & $\theta_5$ \\
+\hline
+6 & -90 & 0 & 0 & $\theta_6$ \\
+\hline
+\end{tabular}
+\caption{DH Parameters for PUMA 560}
+\end{table}
+
+
+\begin{center}
+\includegraphics[width=12cm]{imgs/PUMA560_DH.png}
+\end{center}
+
+\subsubsection{Forward Kinematics}
+The forward kinematics for the PUMA 560 involves the following key steps:
+
+\begin{enumerate}
+\item Define the Denavit-Hartenberg (DH) parameters for each joint-link pair.
+\item Compute the homogeneous transformation matrix for each link using the DH parameters. The transformation matrix for each link is:
+\[ [^{i-1}_{i}T] = [X(a_i,\alpha_i)][Z(d_i,\theta_i)] = 
+\begin{pmatrix}
+\cos\theta_i & -\sin\theta_i & 0 & a_i \\
+\sin\theta_i\cos\alpha_i & \cos\theta_i\cos\alpha_i & -\sin\alpha_i & -d_i\sin\alpha_i \\
+\sin\theta_i\sin\alpha_i & \cos\theta_i\sin\alpha_i & \cos\alpha_i & d_i\cos\alpha_i \\
+0 & 0 & 0 & 1
+\end{pmatrix} \]
+\item Multiply the transformation matrices sequentially to obtain the end-effector pose: 
+$$[^0_6T] = [^0_1T] \cdot [^1_2T] \cdot [^2_3T] \cdot [^3_4T] \cdot [^4_5T] \cdot [^5_6T]$$.
+\item Multiply The Base Frame and The Tool Frame: 
+\[ T = G \times [^0_6T] \times H \]
+where $G$ is base transform matrix and $H$ is the transform from the wrist center to the end-effector (tool) frame.
+\end{enumerate}
+
+\subsubsection{Inverse Kinematics Solution}
+The inverse kinematics for the PUMA 560 is solved analytically using the following steps:
+
+\begin{enumerate}
+\item \textbf{Remove Base/Tool Offsets}: Compute the effective transformation by removing the base and tool transforms from the target pose:
+\[
+[^0_6T] = G^{-1} \cdot T \cdot H^{-1}
+\]
+\item \textbf{Extract Wrist Center}: The wrist center position is extracted from the 4th columns of the transformation matrix:
+\[
+\mathbf{p}_{wc} = [^0_6T][1:3, 4] = (p_x, p_y, p_z)
+\]
+\item \textbf{Solve for ($\theta_1$)}: Use a trigonometric equation to solve for possible values of $\theta_1$ ($\theta_1^+$, $\theta_1^-$):
+\[
+-\sin\theta_1 \cdot p_x + \cos\theta_1 \cdot p_y = d_3
+\]
+which is in the form of $A \cos(x) + B \sin(x) = C$ and can be solved analytically using the formula given in the appendix.
+\item \textbf{Solve for ($\theta_3$)}: Use a distance equation and trigonometric solver to find possible $\theta_3$ values ($\theta_3^+$, $\theta_3^-$):
+\[
+2a_2(a_3\cos\theta_3 - d_4\sin\theta_3) = (p_x^2 + p_y^2 + p_z^2) - (a_2^2 + a_3^2 + d_3^2 + d_4^2)
+\]
+rewritten as: $A\cos\theta_3 + B\sin\theta_3 = C$, with 
+\[
+A = 2a_2a_3, \quad B = -2a_2d_4, \quad C = (p_x^2 + p_y^2 + p_z^2) - (a_2^2 + a_3^2 + d_3^2 + d_4^2)
+\]
+The solutions can be found using the trigonometric equation solver provided in the appendix.
+\item \textbf{Solve for ($\theta_2$)}: For each ($\theta_1$, $\theta_3$) pair, solve the following linear equations for $c_2$ and $s_2$ to obtain $\theta_2^{1,2,3,4}$:
+\begin{align*}
+    c_2(c_1p_x + s_1p_y) - s_2p_z &= a_2 + a_3\cos\theta_3 - d_4\sin\theta_3 \\
+    -s_2(c_1p_x + s_1p_y) - c_2p_z &= a_3\sin\theta_3 + d_4\cos\theta_3
+\end{align*}
+And then solve for $\theta_2$ by 
+\[
+\theta_2 = \text{atan2}(s_2, c_2)
+\]
+where $\theta_2^1$ for ($\theta_1^+$, $\theta_3^+$), $\theta_2^2$ for ($\theta_1^+$, $\theta_3^-$), $\theta_2^3$ for ($\theta_1^-$, $\theta_3^+$), $\theta_2^4$ for ($\theta_1^-$, $\theta_3^-$).
+\item \textbf{Compute Wrist Rotation}: For each of the 4 sets ($\theta_1$, $\theta_2^k$, $\theta_3$) where $k=1,2,3,4$, calculate the wrist rotation matrix and solve for the last three joint angles ($\theta_4$, $\theta_5$, $\theta_6$) using spherical wrist formulas (2 solutions for each set):
+\[
+[^0_3T] = [^0_1T] \cdot [^1_2T] \cdot [^2_3T]\quad
+R_0^3 = [^0_3T][1:3, 1:3]
+\]
+\[
+R_0^6 = [^0_6T][1:3, 1:3]
+\]
+\[
+R_3^6 = Inv({R_0^3}) \cdot R_0^6
+\]
+For the spherical wrist:
+\begin{itemize}
+\item $\theta_5^{\pm} = \pm \arccos(R_{3}^{6}[3,3])$
+\item $\theta_4^{\pm} = \text{atan2}(\frac{R_{3}^{6}[2,3]}{-\sin\theta_5}, \frac{R_{3}^{6}[1,3]}{-\sin\theta_5})$
+\item $\theta_6^{\pm} = \text{atan2}(\frac{R_{3}^{6}[3,2]}{-\sin\theta_5}, \frac{R_{3}^{6}[3,1]}{\sin\theta_5})$
+\end{itemize}
+
+\end{enumerate}
+
+In summary, the PUMA 560 inverse kinematics yields up to 8 solutions: $\theta_1^+$, $\theta_1^-$, $\theta_3^+$, $\theta_3^-$, leading to $\theta_2^1$, $\theta_2^2$, $\theta_2^3$, $\theta_2^4$, and for each of these 4 sets, two solutions for the wrist angles ($\theta_4^\pm$, $\theta_5^\pm$, $\theta_6^\pm$).
+
+The Python implementation is available in the [GitHub repository:] \url{https://github.com/haijunsu-osu/ik_puma560_notes}. You can also explore and run the code interactively in Google Colab: [Open in Colab]\url{https://colab.research.google.com/github/haijunsu-osu/ik_puma560_notes/blob/main/PUMA560Kinematics_FollowNotes_Answer.ipynb}.
+ 
