@@ -31,8 +31,11 @@ The [`source_codes/`](source_codes/) directory contains implementations in multi
 
 ### Jupyter Notebooks (Python)
 - **`forward_kinematics_examples.ipynb`** - Forward kinematics computations with DH parameters, transformation matrices, and coordinate frame analysis
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/haijunsu-osu/lec_robot_kinematics/blob/master/source_codes/forward_kinematics_examples.ipynb)
 - **`puma_560_inverse_kinematics.ipynb`** - Comprehensive analytical inverse kinematics solution for PUMA 560 robot with all 8 possible configurations
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/haijunsu-osu/lec_robot_kinematics/blob/master/source_codes/puma_560_inverse_kinematics.ipynb)
 - **`robot_kinematics_examples.ipynb`** - General robotics examples covering various kinematic concepts and computational methods
+  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/haijunsu-osu/lec_robot_kinematics/blob/master/source_codes/robot_kinematics_examples.ipynb)
 
 ### Mathematica Notebooks
 - **`Inverse Kinematics of PUMA 560 (J Craig definition) Numerical.nb`** - Numerical solution methods for PUMA 560 inverse kinematics following Craig's formulation
@@ -62,7 +65,9 @@ pdflatex robot_kinematics.tex
 ```
 
 ### Running Code Examples
-1. **Jupyter Notebooks**: Open with Jupyter Lab/Notebook or VS Code
+1. **Jupyter Notebooks**: 
+   - **Local**: Open with Jupyter Lab/Notebook or VS Code
+   - **Cloud**: Click the "Open in Colab" badges above to run directly in Google Colab (no installation required)
 2. **Mathematica**: Open .nb files in Wolfram Mathematica
 3. **MATLAB**: Run .m files in MATLAB environment
 
