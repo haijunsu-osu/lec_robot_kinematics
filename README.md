@@ -11,7 +11,7 @@ This repository contains comprehensive lecture notes and computational examples 
 ## 📚 Contents
 
 ### Lecture Notes (PDF)
-- **Robot Kinematics Summary PDF** - Complete 32-page document available [here](https://github.com/haijunsu-osu/lec_robot_kinematics/blob/main/robot_kinematics.pdf)
+- [**Lecture Notes**](https://github.com/haijunsu-osu/lec_robot_kinematics/blob/main/robot_kinematics.pdf)
   - Forward kinematics and coordinate transformations
   - Denavit-Hartenberg (DH) parameters
   - Inverse kinematics with analytical solutions
