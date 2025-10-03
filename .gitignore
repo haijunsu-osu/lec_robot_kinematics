@@ -1,4 +1,41 @@
+# Ignore build scripts
+*.bat
+
 # LaTeX intermediate files
+*.aux
+*.log
+*.out
+*.toc
+*.lot
+*.lof
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.bbl
+*.blg
+*.brf
+*.idx
+*.ilg
+*.ind
+
+# Temporary and editor files
+*~
+*.tmp
+Thumbs.db
+.DS_Store
+
+# Keep source and outputs: tex, bib, pdf, images, source_codes
+!*.tex
+!*.bib
+!*.pdf
+!source_codes/
+!latex_source/imgs/
+!imgs/
+
+# Ensure we don't accidentally ignore README or license
+!README.md# LaTeX intermediate files
 *.aux
 *.bbl
 *.blg
