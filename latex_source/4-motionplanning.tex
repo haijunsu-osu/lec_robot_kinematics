@@ -1,0 +1,158 @@
+\section{Motion Planning}
+
+Consider a start position $P_S$ and end position $P_E$ of a rigid body. To move from $P_S$ to $P_E$, a trajectory must be generated, hence the term ``trajectory generation''. 
+
+Such a trajectory is defined by the path it takes to get between positions (the Interpolated Motion) and the mathematical function describing the trajectory between positions (the Trajectory Planning).
+
+\subsection{Interpolated Motion}
+
+Any motion the robotic arm makes use of interpolation to navigate between positions $P_S$ and $P_E$. Such interpolation can be done in several ways. Two common methods of interpolation are:
+\begin{itemize}
+\item \textbf{Joint motion moveJ():} Interpolation using 6DOF representation
+\item \textbf{Linear motion moveL():} Interpolation using equivalent angle axis representation
+\end{itemize}
+
+\subsubsection{Joint motion}
+
+Using the joint values $θ_S$ and $θ_E$ a joint motion, using each joint independently of one another, can be made. The idea is to have each joint of a robotic arm follow their seperate trajectories between two points.
+
+$$\text{moveJ}(t) = \begin{bmatrix} θ_{1}(t) & ... & θ_{n}(t) \end{bmatrix}^T$$
+
+Using such a joint motion to go from $P_S$ to $P_E$ requires that these positions can be represented using the joints of the robotic arm. This can be done by using Inverse Kinematics on said positions converting them into joint values.
+
+$$θ_S = \begin{bmatrix} θ_{1,S} & ... & θ_{n,S} \end{bmatrix}^T = \text{IK} \begin{pmatrix} P_S\end{pmatrix} &&& θ_E = \begin{bmatrix} θ_{1,E} & ... & θ_{n,E} \end{bmatrix}^T = \text{IK} \begin{pmatrix} P_E \end{pmatrix}$$
+
+\subsubsection{Linear motion}
+
+Provided the position $P_S$ and $P_E$ in transform matrix format ${^B_S T}$ and ${^B_E T}$, it becomes possible to make a single transform matrix able to represent a linear motion between the two points ${^S_E T} = {^B_S T}^{-1} \cdot {^B_E T}$. And in cases where only joint values are provided, Forward Kinematics can be used to get said positions.
+
+$$P_S = \text{FK} \begin{pmatrix} \begin{bmatrix} θ_{1,S} & ... & θ_{n,S} \end{bmatrix}^T \end{pmatrix} &&& P_E = \text{FK} \begin{pmatrix} \begin{bmatrix} θ_{1,E} & ... & θ_{n,E} \end{bmatrix}^T \end{pmatrix}$$
+
+Using ${^S_E T}$, a linear motion between $P_S$ and $P_E$ becomes plausible using an angle-axis representation defined as:
+
+$$\text{moveL}(t) = \begin{bmatrix} x(t) & y(t) & z(t) & θ(t)\end{bmatrix}^T$$
+
+Where 
+
+$$\begin{matrix} x(t) = {^S_E T_x}, & y(t) = {^S_E T_y}, & z(t) = {^S_E T_z}, & θ(t) = \frac{cos^{-1} ({^S_E T_{11}} + {^S_E T_{22}} + {^S_E T_{33}} - 1)}{2} \end{matrix}$$
+
+Do note that a rotation matrix representation of $θ$ can be made using the below equation:
+
+$${^S_E R} = \begin{bmatrix} k_x \cdot k_x \cdot (1 - \text{cos}θ) + \text{cos}θ & k_x \cdot k_y \cdot (1 - \text{cos}θ) - k_z \cdot \text{sin}θ & k_x \cdot k_z \cdot (1 - \text{cos}θ) + k_y \cdot \text{sin}θ \\ k_y \cdot k_x \cdot (1 - \text{cos}θ) + k_z \cdot \text{sin}θ & k_y \cdot k_y \cdot (1 - \text{cos}θ) + \text{cos}θ & k_y \cdot k_z \cdot (1 - \text{cos}θ) - k_x \cdot \text{sin}θ \\ k_z \cdot k_x \cdot (1 - \text{cos}θ) - k_y \cdot \text{sin}θ & k_z \cdot k_y \cdot (1 - \text{cos}θ) + k_x \cdot \text{sin}θ & k_z \cdot k_z \cdot (1 - \text{cos}θ) + \text{cos}θ \end{bmatrix}$$
+
+Where
+
+$$K = \begin{bmatrix} k_x \\ k_y \\ k_z \end{bmatrix} = \frac{1}{2 \cdot \text{sin}(θ)} \cdot \begin{bmatrix} {^S_E T_{32}} - {^S_E T_{23}} \\ {^S_E T_{13}} - {^S_E T_{31}} \\ {^S_E T_{21}} - {^S_E T_{12}} \end{bmatrix}$$
+
+\subsection{Trajectory Planning}
+
+This section goes into detail on the theory behind the methods used in the python file ``trajectoryGeneration.py'' and its class ``trajectoryGeneration''.
+
+The trajectory planner of any robotic arm can be set to run in a meriat of ways. In this repository, two such trajectory planners have been used.
+\begin{itemize}
+\item \textbf{Cubic Polynomial}
+\item \textbf{Parabolic Blend} aka. Linear Segments with Parabolic Blend (LSPB)
+\end{itemize}
+
+Note that for any joint or DOF over time $θ(t)$, movement between 2 positions may be described using these 4 constraints:
+
+\begin{itemize}
+\item $θ(0) = θ_0$
+\item $θ(f) = θ_f$
+\item $\dot{θ}(0) = \dot{θ}_0$
+\item $\dot{θ}(f) = \dot{θ}_f$
+\end{itemize}
+
+\subsubsection{Cubic Polynomial}
+
+\begin{figure}[H]
+\centering
+\subfigure[]{\includegraphics[width=0.3\textwidth]{imgs/CubicP.jpg}}
+\subfigure[]{\includegraphics[width=0.3\textwidth]{imgs/dCubicP.jpg}}
+\subfigure[]{\includegraphics[width=0.3\textwidth]{imgs/ddCubicP.jpg}}
+\caption{Cubic polynomial, its derivative, and second derivative}
+\label{fig:cubic}
+\end{figure}
+
+IMAGE SOURCE: [1]
+
+The 4 contraints described above may be satisfied using a cubic polynomial such as the one seen below:
+
+$$\begin{matrix} θ(t) = a_0 + a_1 \cdot t + a_2 \cdot t^2 + a_3 \cdot t^3 , where t \in [0, t_f] \end{matrix}$$
+
+Using this cubic polynomial, the velocity of the trajectory can be found as its derivarive $\dot{θ}(t)$ and the acceleration as the second derivative $\ddot{θ}(t)$.
+
+$$\begin{matrix} \dot{θ}(t) = a_1 + 2 a_2 \cdot t + 3 a_3 \cdot t^2 , where t \in [0, t_f] \\ \ddot{θ}(t) = 2 a_2 + 6 a_3 \cdot t , where t \in [0, t_f] \end{matrix}$$
+
+Using $θ(t)$ and $\dot{θ}(t)$, the 4 constraints can be expressed as the following equations:
+
+\begin{itemize}
+\item $θ(0) = a_0$
+\item $θ(f) = a_0 + a_1 \cdot t_f + a_2 \cdot t_f^2 + a_3 \cdot t_f^3$
+\item $\dot{θ}(0) = a_1$
+\item $\dot{θ}(f) = a_1 + 2 a_2 \cdot t + 3 a_3 \cdot t^2$
+\end{itemize}
+
+Solving for the parameters $a_0$, $a_1$, $a_2$, and $a_3$ using the above 4 expressions, the following equations are obtained:
+
+\begin{itemize}
+\item $a_0 = θ(0)$
+\item $a_1 = \dot{θ}(0)$
+\item $a_2 = \frac{3}{t_f^2} \cdot (θ_f - θ_0) - \frac{2}{t_f} \cdot \dot{θ} - \frac{1}{t_f} \cdot \dot{{θ}}_f$
+\item $a_3 = -\frac{2}{t_f^3} \cdot (θ_f - θ_0) + \frac{1}{t_f^2} \cdot (\dot{θ}_0 + \dot{θ}_f)$
+\end{itemize}
+
+Assuming the robotic arm has $n$ joints, a matrix-vector equation can be established to describe the cubic polynomial of each of these joints:
+
+$$\text{moveJ}(t) = \begin{bmatrix} a_{1,0} & a_{1,1} & a_{1,2} & a_{1,3} \\ ... & ... & ... & ... \\ a_{n,0} & a_{n,1} & a_{n,2} & a_{n,3} \\ \end{bmatrix} \cdot \begin{bmatrix} 1 & t & t^2 & t^3 \end{bmatrix}^T , for n joints $$
+
+\subsubsection{Linear Segments with Parabolic Blend (LSPB)}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.5\textwidth]{imgs/ParabolicBlend.png}
+\caption{Parabolic blend trajectory}
+\label{fig:parabolic}
+\end{figure}
+
+IMAGE SOURCE: [1]
+
+The parabolic blend is derived using the 3 Kinematics Equations in terms of rotation $θ(t)$
+
+$$\begin{matrix} θ(t) = \frac{1}{2} \ddot{θ} \cdot t^2 + \dot{θ}_0 \cdot t + θ_0 \\ \dot{θ}(t) = \ddot{θ} \cdot t + \dot{θ}_0 \\ \dot{θ}(t)^2 = \dot{θ}^2_0 + 2 \ddot{θ} \cdot (θ_f - θ_0) \end{matrix}$$
+
+Using the 4 constraints mentioned above, these 3 Kinematics Equations wind up like this:
+
+$$\begin{matrix} θ(t) = \frac{1}{2} \ddot{θ} \cdot t^2 + θ_0 \\ \dot{θ}(t) = \ddot{θ} \cdot t \\ \dot{θ}(t)^2 = 2 \ddot{θ} \cdot (θ_f - θ_0) \end{matrix}$$
+
+Using these 3 equations, the 3 segments of the Parabolic Blend can be defined as:
+
+$$θ(t) = \begin{Bmatrix} \begin{matrix} θ_0 + \frac{1}{2} \ddot{θ} \cdot t^2, & \text{if } t_0 \leq t \leq t_b \\ θ_b + a \cdot t_b \cdot (t - t_b), & \text{if } t_b < t < t_f - t_b \\ θ_f - \frac{1}{2} \ddot{θ} \cdot t^2 + θ_0, & \text{if } t_f - t_b \leq t \leq t_f \end{matrix} \end{Bmatrix} , for \begin{bmatrix} t_0, t_f \end{bmatrix}$$
+
+Where
+
+$$t_b = \frac{t_f}{2} - \text{abs} \begin{pmatrix} \sqrt{ \frac{\ddot{θ}^2 \cdot t_f^2 - 4 \cdot \ddot{θ} \cdot (Pe-Ps) }{(2 \cdot \ddot{θ})} } \end{pmatrix}$$
+
+The parabolic blend comes with its own condition, because it has to comply with the 3 Kinematic Equations. Using the third Kinematic Equation, this condition can be derived assuming no overlap occurs between the 3 segments meaning, $t_f \geq 2 t_b$ must be true:
+
+$$ \dot{θ}(t_b)^2 = 2 \ddot{θ} \cdot (θ_f - θ_0) \to \dot{θ}(t_f)^2 \geq 4 \ddot{θ} \cdot (θ_f - θ_0) \to (\ddot{θ} \cdot t_f)^2 \geq 4 \ddot{θ} \cdot (θ_f - θ_0) \to \ddot{θ} \geq \frac{4 \cdot (θ_f - θ_0)}{t_f^2} $$
+
+\subsection{Calculating execution time $t_f$}
+
+The used method of calculating execution time $t_f$ of any trajectory makes use of the assumption that a parabolic blend is used. 
+
+Consider that the Parabolic Blend has a maximum velocity $v_{max}$ and maximum acceleration ${a_{max}}$. This means the Parabolic Blend has a velocity of $v_{max}$ during its linear segment and an acceleration of $a_{max}$ during acceleration (negative $a_{max}$ during deceleration). This way, the time $t_b$ becomes equal to:
+
+$$ t_b = v_{max} / a_{max} $$
+
+Using $t_b$, it becomes possible to determine the execution time $t_f$. In cases where $2 t_b = t_f$, $t_f$ becomes:
+
+$$ \begin{matrix} t_f = \sqrt{ \frac{4 \cdot (θ_f - θ_0)}{a_{max}} } , if 2 t_b \geq t_f \end{matrix} $$
+
+Note how even though the expression $2 t_b > t_f$ is theoretically implausible, it accounts for cases when the specified $v_{max}$ surpases the maximum reached velocity of the specified Parabolic Blend.
+
+On the other hand, when $2 t_b < t_f$, the linear segment has to be taken into account. This is done by using the below expression:
+
+$$ \begin{matrix} t_f = t_b + \frac{θ_f - θ_0}{v_{max}} , if 2 t_b < t_f \end{matrix} $$
+
+Using the two above equation describing execution time $t_f$, the theoretically lowest $t_f$ is acquired assuming the specified $v_{max}$ and $a_{max}$ apply to the trajectory. That is to say these equations assume a parabolic blend is used as the trajectory planner.
