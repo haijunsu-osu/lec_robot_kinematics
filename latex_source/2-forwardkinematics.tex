@@ -254,14 +254,114 @@ print("Are they close?", np.allclose(original_angles, extracted_angles))
 \end{lstlisting}
 
 
-\subsubsection{Unit quaternions (Euler parameters)}
-Another representation of orientation is by means of four values called the \textbf{Euler parameters}. It can be shown that every rotation can be expressed as one rotation of $\theta$ around a single axis $K = [k_x\ k_y\ k_z]^T$. This is also known as the \textit{equivalent angle-axis representation}. 
+\subsubsection{Rotation axis and angle}
+Every rotation has an axis, which is the set of points that remain invariant (fixed) under the rotation transformation. The geometric properties of rotation axes are fundamental in understanding spatial rotations~\cite{McCarthy2011}.
+
+\textbf{Definition:} The points that remain fixed during a rotation $[R]$ form its \textbf{rotation axis}. To find these points, we consider the transformation equation
+\[ X = [R]X \]
+
+This shows that a fixed point $X$ is the solution to
+\[ ([I] - [R])X = 0 \]
+
+For there to be solutions other than $X = 0$, the determinant of the coefficient matrix must be zero: $\det([I] - [R]) = 0$. This condition is satisfied for all spatial rotation matrices, meaning that rotation matrices always have $\lambda = 1$ as an eigenvalue. If $K$ is a nonzero solution, then every point $P = tK$ on the line through the origin and $K$ is also a solution. This line of points is the \textbf{rotation axis}.
+
+\textbf{Cayley's formula:} To obtain an explicit equation for the rotation axis, we use Cayley's formula. Consider the points $x$ and $X$ that represent the initial and final positions obtained from the rotation $X = [R]x$. Using the fact that $|x| = |X|$ (rotation preserves distances), we can show that
+\[ X - x = b \times (X + x) \]
+
+where $\times$ denotes the vector cross product, and $b$ is \textbf{Rodrigues's vector}. This vector can be computed from the rotation matrix using
+\[ [B] = ([R] - [I])([R] + [I])^{-1} \]
+
+where $[B]$ is the skew-symmetric matrix associated with $b = (b_x, b_y, b_z)^T$:
+\[ [B] = \begin{bmatrix}
+0 & -b_z & b_y \\
+b_z & 0 & -b_x \\
+-b_y & b_x & 0
+\end{bmatrix} \]
+
+The skew-symmetric matrix $[B]$ has the property that for any vector $y$,
+\[ [B]y = b \times y \]
+
+Cayley's formula for the rotation matrix in terms of $[B]$ is:
+\[ [R] = ([I] - [B])^{-1}([I] + [B]) \]
+
+To find the rotation axis explicitly, we solve $([I] - [R])X = 0$. Substituting Cayley's formula:
+\[ \left([I] - ([I] - [B])^{-1}([I] + [B])\right)X = 0 \]
+
+which simplifies to
+\[ [B]X = 0 \]
+
+Since $[B]X = b \times X$, it is clear that $X = b$ is a solution. Thus, \textbf{Rodrigues's vector $b$ defines the rotation axis direction}.
+
+We denote by $K = (k_x, k_y, k_z)^T$ the unit vector in the direction of Rodrigues's vector $b$, which identifies the rotation axis. The magnitude of Rodrigues's vector is related to the rotation angle $\theta$ by
+\[ b = \tan\left(\frac{\theta}{2}\right) K \]
+
+Therefore, the rotation axis can be extracted from a rotation matrix by:
+\begin{enumerate}
+\item Compute the skew-symmetric matrix $[B] = ([R] - [I])([R] + [I])^{-1}$
+\item Extract the vector $b = (b_x, b_y, b_z)^T$ from $[B]$
+\item Normalize $b$ to obtain the unit rotation axis: $K = \frac{b}{|b|}$
+\item Compute the rotation angle: $\theta = 2\arctan(|b|)$
+\end{enumerate}
+
+The rotation matrix can also be expressed explicitly in terms of its rotation axis $K$ and angle $\theta$ using:
+\[ [R(\theta, K)] = [I] + \sin\theta [K] + (1 - \cos\theta)[K]^2 \]
+
+where $[K]$ is the skew-symmetric matrix associated with the unit vector $K$.
+
+\begin{lstlisting}[language=Python]
+import numpy as np
+from scipy.spatial.transform import Rotation as R
+
+# Example: Extract rotation axis and angle from a rotation matrix
+# Create a rotation: 45 degrees around axis [1, 1, 1]
+axis = np.array([1, 1, 1])
+axis = axis / np.linalg.norm(axis)  # normalize
+angle = np.pi / 4  # 45 degrees
+
+r = R.from_rotvec(angle * axis)
+R_matrix = r.as_matrix()
+
+print("Rotation matrix:")
+print(R_matrix)
+
+# Method 1: Using scipy to extract axis-angle
+rotvec = r.as_rotvec()
+extracted_angle = np.linalg.norm(rotvec)
+extracted_axis = rotvec / extracted_angle if extracted_angle != 0 else rotvec
+
+print("\nExtracted rotation axis K:", extracted_axis)
+print("Extracted rotation angle (radians):", extracted_angle)
+print("Extracted rotation angle (degrees):", np.degrees(extracted_angle))
+
+# Method 2: Using Cayley's formula (manual computation)
+I = np.eye(3)
+# Compute [B] = ([R] - [I])([R] + [I])^{-1}
+try:
+    B = (R_matrix - I) @ np.linalg.inv(R_matrix + I)
+    # Extract b from skew-symmetric matrix
+    b = np.array([B[2, 1], B[0, 2], B[1, 0]])
+    b_magnitude = np.linalg.norm(b)
+    K_cayley = b / b_magnitude
+    theta_cayley = 2 * np.arctan(b_magnitude)
+    
+    print("\nUsing Cayley's formula:")
+    print("Rodrigues vector b:", b)
+    print("Rotation axis K:", K_cayley)
+    print("Rotation angle (radians):", theta_cayley)
+    print("Rotation angle (degrees):", np.degrees(theta_cayley))
+except:
+    print("\nCayley's formula computation failed (singular case)")
+\end{lstlisting}
+
+
+\subsubsection{Unit quaternions}
+Another representation of orientation is by means of four values called the \textbf{Quaternions}. It can be shown that every rotation can be expressed as one rotation of $\theta$ around a single axis $K = [k_x\ k_y\ k_z]^T$. This is also known as the \textit{equivalent angle-axis representation}. 
 
 \begin{center}
 	\includegraphics[width=4cm]{imgs/2_equivalent_angle_axis.png}
 \end{center}
 
-The Euler parameters are given by
+The quaternions are defined by
 
 \[ (\varepsilon_1 , \varepsilon_2 , \varepsilon_3 , \varepsilon_4) = ( k_{x} \sin \frac{\theta}{2}, k_{y} \sin \frac{\theta}{2}, k_{z} \sin \frac{\theta}{2}, \cos \frac{\theta}{2})  \]
 
@@ -323,13 +423,17 @@ print("\nCoordinates of P in frame A:")
 print(A_P[:3])
 \end{lstlisting}
  
-Inverse of the homogeneous transform:
+\subsubsection{Inverse of the homogeneous transform}
+The inverse of a homogeneous transform $_{B}^{A}T = [_{B}^{A}R \ \ ^{A}P_{BORG}]$ is given by:
+\[ _{A}^{B}T = \begin{bmatrix} { }_{B}^{A}R^{T} & -{ }_{B}^{A}R^{T} \ { }^{A}P_{BORG} \\ 0 & 1 \end{bmatrix} \]
 
 \begin{center}
 	\includegraphics[width=7cm]{imgs/2_inverse_transform.png}
 \end{center}
 
-Compound transformation:
+\subsubsection{Compound transformations}
+
+When multiple transformations are applied in sequence, the overall transformation can be obtained by multiplying the individual homogeneous transformation matrices. This is known as \textbf{compound transformation}.
 
 \begin{center}
 	\includegraphics[width=7cm]{imgs/2_compound_transformation_1.png}
@@ -374,6 +478,122 @@ print("Point after compound transformation:", P_transformed[:3])
 # Apply inverse to get back
 P_back = T_inv @ P_transformed
 print("Point after applying inverse:", P_back[:3])
+\end{lstlisting}
+
+\subsubsection{Screw axis and displacement}
+
+A fundamental result in spatial kinematics, known as \textbf{Chasles' theorem}, states that every spatial displacement can be represented as a rotation about an axis combined with a translation along that same axis. This axis is called the \textbf{screw axis}, and the combined motion is called a \textbf{screw displacement}~\cite{McCarthy2011}.
+
+\textbf{Definition:} While spatial displacements have no fixed points in general, there exists a line, called the \textbf{screw axis}, that remains invariant (fixed in direction and position) during the displacement. A spatial displacement consists of:
+\begin{itemize}
+\item A rotation by angle $\theta$ about the screw axis
+\item A translation by distance $t$ along the screw axis
+\end{itemize}
+
+Consider a spatial displacement defined by the homogeneous transform $[T] = [R, d]$, where $[R]$ is the $3 \times 3$ rotation matrix and $d$ is the translation vector. If a point $C$ has the same coordinates before and after the displacement, it must satisfy:
+\[ C = [R]C + d \]
+
+which simplifies to:
+\[ ([I] - [R])C = d \]
+
+Since all rotation matrices have $\lambda = 1$ as an eigenvalue (meaning $\det([I] - [R]) = 0$), this equation generally has no solution, confirming that spatial displacements have no fixed points. However, we can find a fixed line by decomposing the translation.
+
+\textbf{Computing the screw axis:} The screw axis can be computed by decomposing the translation vector $d$ into components parallel and perpendicular to the rotation axis $K$ of $[R]$:
+\[ d = d_{\perp} + tK \]
+
+where:
+\begin{itemize}
+\item $K = (k_x, k_y, k_z)^T$ is the unit vector defining the rotation axis (computed using methods from the previous section)
+\item $t = d \cdot K$ is the translation distance along the screw axis
+\item $d_{\perp} = d - tK$ is the component perpendicular to $K$
+\end{itemize}
+
+The displacement can now be decomposed as:
+\[ [T] = [I, tK][R, d_{\perp}] = [R, d_{\perp} + tK] \]
+
+A point $C$ on the screw axis can be found using Rodrigues's vector $b = \tan(\theta/2)K$ from the rotation matrix $[R]$:
+\[ C = \frac{b \times (d_{\perp} - b \times d_{\perp})}{2(b \cdot b)} \]
+
+The screw axis is then the line:
+\[ S: P(s) = C + sK \]
+
+where $s$ is a parameter along the line.
+
+\textbf{Screw parameters:} The complete screw displacement is characterized by four parameters:
+\begin{enumerate}
+\item \textbf{Screw axis direction}: $K = (k_x, k_y, k_z)^T$ (unit vector)
+\item \textbf{Point on screw axis}: $C$ (determines axis location)
+\item \textbf{Rotation angle}: $\theta$ (rotation about the axis)
+\item \textbf{Translation}: $t$ (slide along the axis)
+\end{enumerate}
+
+The screw displacement can be expressed as:
+\[ [T(\theta, t, K, C)] = [R(\theta, K), ([I] - [R])C + tK] \]
+
+This shows that any point $X$ transforms according to:
+\[ X - C = [R(\theta, K)](x - C) + tK \]
+
+which explicitly shows the rotation about point $C$ followed by translation along $K$.
+
+\begin{lstlisting}[language=Python]
+import numpy as np
+from scipy.spatial.transform import Rotation as R
+
+# Example: Compute screw axis from a spatial displacement
+# Define a rotation: 60 degrees around axis [1, 1, 1]
+axis = np.array([1, 1, 1])
+K = axis / np.linalg.norm(axis)  # normalize to get unit vector
+theta = np.deg2rad(60)
+
+r = R.from_rotvec(theta * K)
+R_matrix = r.as_matrix()
+
+# Define a translation vector
+d = np.array([3.0, 4.0, 5.0])
+
+# Decompose translation into parallel and perpendicular components
+t = np.dot(d, K)  # translation along axis
+d_perp = d - t * K  # perpendicular component
+
+print("Rotation axis K:", K)
+print("Rotation angle (degrees):", np.degrees(theta))
+print("Translation along axis t:", t)
+print("Perpendicular translation d_perp:", d_perp)
+
+# Find a point C on the screw axis using Rodrigues's vector
+I = np.eye(3)
+try:
+    B = (R_matrix - I) @ np.linalg.inv(R_matrix + I)
+    b = np.array([B[2, 1], B[0, 2], B[1, 0]])
+    
+    # Compute point on screw axis
+    if np.linalg.norm(b) > 1e-10:
+        C = np.cross(b, (d_perp - np.cross(b, d_perp))) / (2 * np.dot(b, b))
+    else:
+        # Pure translation case
+        C = np.zeros(3)
+    
+    print("\nPoint on screw axis C:", C)
+    
+    # Verify: reconstruct the homogeneous transform
+    T_reconstructed = np.eye(4)
+    T_reconstructed[:3, :3] = R_matrix
+    T_reconstructed[:3, 3] = (I - R_matrix) @ C + t * K
+    
+    print("\nReconstructed translation vector:", T_reconstructed[:3, 3])
+    print("Original translation vector:", d)
+    print("Match:", np.allclose(T_reconstructed[:3, 3], d))
+    
+except:
+    print("Computation failed (singular case or pure translation)")
+
+# Visualize the screw parameters
+print("\n=== Screw Displacement Summary ===")
+print(f"Screw axis direction K: [{K[0]:.4f}, {K[1]:.4f}, {K[2]:.4f}]")
+print(f"Rotation angle theta: {np.degrees(theta):.2f} degrees")
+print(f"Translation along axis t: {t:.4f}")
+if 'C' in locals():
+    print(f"Point on axis C: [{C[0]:.4f}, {C[1]:.4f}, {C[2]:.4f}]")
 \end{lstlisting}
 
 \subsection{Forward kinematics}
