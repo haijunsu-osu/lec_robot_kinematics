@@ -35,7 +35,14 @@ Thumbs.db
 !imgs/
 
 # Ensure we don't accidentally ignore README or license
-!README.md# LaTeX intermediate files
+!README.md
+
+# Reference PDFs and extraction scripts (keep local, don't track)
+978-1-4419-7892-9_Chapter_8.pdf
+Chapter_12 McCarthy.pdf
+extract_pdf.py
+
+# LaTeX intermediate files
 *.aux
 *.bbl
 *.blg
