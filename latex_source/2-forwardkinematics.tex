@@ -596,6 +596,40 @@ if 'C' in locals():
     print(f"Point on axis C: [{C[0]:.4f}, {C[1]:.4f}, {C[2]:.4f}]")
 \end{lstlisting}
 
+\textbf{Special screw displacement matrices:} For screw displacements about the principal coordinate axes (passing through the origin), the $4 \times 4$ homogeneous transformation matrices take simplified forms. A screw displacement consists of a rotation by angle $\theta$ about an axis and a translation by distance $t$ along that same axis.
+
+\textbf{Screw displacement about the x-axis:}
+\[
+T_X(\theta, t) = \begin{bmatrix}
+1 & 0 & 0 & t \\
+0 & \cos\theta & -\sin\theta & 0 \\
+0 & \sin\theta & \cos\theta & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+\]
+
+\textbf{Screw displacement about the y-axis:}
+\[
+T_Y(\theta, t) = \begin{bmatrix}
+\cos\theta & 0 & \sin\theta & 0 \\
+0 & 1 & 0 & t \\
+-\sin\theta & 0 & \cos\theta & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+\]
+
+\textbf{Screw displacement about the z-axis:}
+\[
+T_Z(\theta, t) = \begin{bmatrix}
+\cos\theta & -\sin\theta & 0 & 0 \\
+\sin\theta & \cos\theta & 0 & 0 \\
+0 & 0 & 1 & t \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+\]
+
+These matrices combine the rotation matrices $R_X(\theta)$, $R_Y(\theta)$, $R_Z(\theta)$ with translations along their respective axes. Note that the translation component appears in the position corresponding to the axis of rotation (x-translation in first row, y-translation in second row, z-translation in third row).
+
 \subsection{Forward kinematics}
 Forward kinematics solves the static geometrical problem of computing the position and the orientation of the end-effector of the manipulator. Specifically, given a \textbf{set of joint angles}, the forward kinematic problem is to compute the position and orientation of the tool frame relative to the base frame.
 
