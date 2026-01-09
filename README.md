@@ -38,32 +38,12 @@ The [`source_codes/`](source_codes/) directory contains implementations in multi
 ### MATLAB Scripts
 - **`PUMA560Kinematics_FollowNotes_Answer.m`** - MATLAB implementation of PUMA 560 kinematics following the lecture notes with complete solutions
 
-
-### LaTeX Source Files
-All LaTeX source files are organized in the [`latex_source/`](latex_source/) directory:
-- **Main document**: `robot_kinematics.tex`
-- **Bibliography**: `references.bib` (IEEE format)
-- **Section files**: Individual `.tex` files for each chapter
-- **Images**: `imgs/` folder containing all figures and diagrams
-
 ## 🚀 Getting Started
 
 ### Prerequisites
-- **LaTeX**: For compiling the lecture notes (MiKTeX, TeX Live, or similar)
 - **Python 3.x**: For Jupyter notebooks (with NumPy, Matplotlib, SymPy)
 - **Mathematica**: For .nb files (Wolfram Mathematica)
 - **MATLAB**: For .m files (MATLAB or GNU Octave)
-
-### Compiling LaTeX Notes
-To regenerate the PDF from LaTeX source:
-
-```bash
-cd latex_source
-pdflatex robot_kinematics.tex
-bibtex robot_kinematics
-pdflatex robot_kinematics.tex
-pdflatex robot_kinematics.tex
-```
 
 ### Running Code Examples
 1. **Jupyter Notebooks**: 
