@@ -3,6 +3,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue?style=flat&logo=github)](https://github.com/haijunsu-osu/lec_robot_kinematics)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 [![PDF](https://img.shields.io/badge/PDF-Download-red?style=flat&logo=adobeacrobatreader)](https://github.com/haijunsu-osu/lec_robot_kinematics/raw/main/robot_kinematics.pdf)
+[![Web App](https://img.shields.io/badge/Web_App-Interactive-orange?style=flat&logo=google-chrome)](https://haijunsu-osu.github.io/kinematics_ug/robot_kinematics_app/)
 
 ## Overview
 
