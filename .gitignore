@@ -76,3 +76,6 @@ __pycache__/
 
 # Private/copyrighted files
 Introduction-to-Robotics-3rd-edition (Craig).pdf
+
+# Exclude all files in latex_source folder
+latex_source/
