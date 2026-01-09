@@ -9,6 +9,8 @@
 
 This repository contains comprehensive lecture notes and computational examples for **Robot Kinematics**, developed as educational material for robotics courses. The content closely follows the theoretical framework and examples presented in **J. Craig's "Introduction to Robotics: Mechanics and Control" (3rd Edition)**.
 
+**Interactive Web App**: Explore the concepts interactively at [https://haijunsu-osu.github.io/kinematics_ug/robot_kinematics_app/](https://haijunsu-osu.github.io/kinematics_ug/robot_kinematics_app/)
+
 ## 📚 Contents
 
 ### Lecture Notes (PDF)
